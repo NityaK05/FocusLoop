@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Webcam Eye Tracking</title>
+  <script src="https://api.gazerecorder.com/GazeCloudAPI.js"></script>
+</head>
+<body>
+  <h1>Webcam Eye Tracking</h1>
+  <button id="start">Start Tracking</button>
+  <pre id="log"></pre>
+
+  <script>
+    const log = msg => {
+      document.getElementById('log').textContent += JSON.stringify(msg) + '\n';
+    };
+
+    // open WebSocket to Python bridge
+    const socket = new WebSocket('ws://localhost:8765');
+    socket.onopen  = () => log({info: 'WS connected'});
+    socket.onerror = e    => log({error: e});
+    socket.onclose = ()   => log({info: 'WS closed'});
+
+    document.getElementById('start').onclick = () => {
+      GazeCloudAPI.OnCamDenied = ()      => log({error:'camera access denied'});
+      GazeCloudAPI.OnError     = msg     => log({error:msg});
+      GazeCloudAPI.OnCalibrationComplete = () => log({info:'calibration done'});
+      GazeCloudAPI.OnResult    = gaze    => {
+        const msg = {
+          ts:    gaze.time,
+          x:     gaze.docX,
+          y:     gaze.docY,
+          valid: gaze.state === 0
+        };
+        log(msg);
+        if (socket.readyState === WebSocket.OPEN) {
+          socket.send(JSON.stringify(msg));
+        }
+      };
+      GazeCloudAPI.StartEyeTracking();
+    };
+  </script>
+</body>
+</html>
