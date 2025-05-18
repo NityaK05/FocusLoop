@@ -44,7 +44,7 @@ Most neurofeedback models rely on a *single* signal (EEG *or* gaze/eye movement)
 ### 1. Clone & set up Python backend
 
 ```bash
-git clone --recursive https://github.com/Drivthrucover/focusloop.git
-cd focusloop
+git clone --recursive https://github.com/NityaK05/FocusLoop.git
+cd FocusLoop
 conda env create -f env.yml          # installs mne, brainflow, pylsl, pyzmq …
 conda activate focusloop
